@@ -34,9 +34,9 @@ end
 # Generate minimal BEL document on-the-fly as bel.rb parser input
 def belBuilder(pObj)
 	documentString = ""
-	documentString << 'SET DOCUMENT Name = "BEL document generated for parsing purposes by bel2bioc"'
+	documentString << 'SET DOCUMENT Name = "BEL document generated for parsing purposes by bel2csv"'
 	breakln(documentString)
-	documentString << 'SET DOCUMENT Description = "Note: This is an automatically created BEL document with dummy definitions. It\'s not intended for usage outside of bel2bioc conversion."'
+	documentString << 'SET DOCUMENT Description = "Note: This is an automatically created BEL document with dummy definitions. It\'s not intended for usage outside of bel2csv conversion."'
 	
 	emptyln(documentString)
 	

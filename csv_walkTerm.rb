@@ -1,5 +1,4 @@
-require 'simple_bioc'
-require_relative 'csvhelpers'
+require_relative 'csv_helpers'
 require_relative 'csv_mapTerms'
 require_relative 'csv_mapParameters'
 
