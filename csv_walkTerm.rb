@@ -59,7 +59,7 @@ module BELCSV
         term.BEL_relative = String(obj)
         
         # Check if statement is a semantic triple
-        if !obj.nil? and !statement.obj.relationship.nil?
+        if !obj.nil? #and !statement.obj.relationship.nil?
             
             # Relative BEL: Statement annotation/relation ID substitution for top-level (subject/object) terms
             if sublevel == 0

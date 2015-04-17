@@ -159,6 +159,9 @@ module BELCSV
                 
                 term.namespace = obj.arguments[0].ns
                 term.value = obj.arguments[0].value
+                if statement.equivalence_hash
+                    term.bid = mapToBID(term.namespace, term.value, statement.equivalence_hash)
+                end
             else
             # Handle single-argument modification functions
                 term.content = csvCreateRelation(statement)

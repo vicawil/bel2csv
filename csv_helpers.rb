@@ -1,3 +1,5 @@
+require 'json'
+require 'csv'
 require_relative 'csv_func_rel_mapping'
 
 # Reset document, annotation, relationship ids
@@ -44,12 +46,16 @@ b: Treat input file as BEL document, use sequentially incremented
 t: Treat input file as tabulated (CSV), use BEL ID from CSV
 a: Only in combination with t: Do not include sentence Id and PMID 
    as passage infons.
+n: Map entity symbol or ID (field `value`) to unique internal 
+   BEL identifier (field `BID`). Note: Equivalence files must be placed 
+   in /equivalence_files and registered in `equivalence_files.json`
 --------------------------------------------------------------------
 	EOS
 	puts string
 	abort
 end
 
+# Instantiate relation pobject
 def csvCreateRelation(statement)
 	obj = statement.currentobj
 	content = OpenStruct::new()
@@ -58,6 +64,7 @@ def csvCreateRelation(statement)
 	return content
 end
 
+# Process unary BEL term
 def csvUnaryTermParameter(statement, annotationId, objFunction, argidy, sublevel, role = nil)
 	obj = statement.currentobj
     relation = statement.relation
@@ -74,6 +81,7 @@ def csvUnaryTermParameter(statement, annotationId, objFunction, argidy, sublevel
 	return argobj
 end
 
+# Walk taxonomy to determine subtype and type of function or relationship predicate
 def walkTaxonomy(termcontent, belobj, type)
     if type == :function
         termcontent.objvalue = belobj.fx.long_form
@@ -86,12 +94,64 @@ def walkTaxonomy(termcontent, belobj, type)
     termcontent.objtype = subtypeMapToType(termcontent.objsubtype)
 end
 
+
+# Push ID to children array of statement
 def pushToStatementChildren(statement, term, entity)
     if entity == :subject or entity == :object
         unless statement.nestedStatement
             statement.childrenIds << term.content.id
         else
             statement.nestedChildrenIds << term.content.id
+        end
+    end
+end
+
+
+# Map namespace and entity value to unique internal BEL identifier (BID)
+def mapToBID(ns, value, equivalence_hash)
+    ns = String(ns)
+    if equivalence_hash.include? ns
+        if equivalence_hash[ns].include? value
+            return equivalence_hash[ns][value]
+        else
+            puts "Error mapping #{value}: No matching equivalence entry in hash #{ns}"
+        end
+    else 
+        puts "Error mapping #{value}: No equivalence hash for namespace #{ns}"
+    end
+end
+
+# Populate equivalence hash for namespace/value-to-BID mapping
+def readEquivFiles()
+    equivHash = {}
+    equivJSON = File.read("equivalence_files.json")
+    equiv_files = JSON.parse(equivJSON)
+    equiv_files.each do |ns, equiv_ns|
+        equivHash[ns] = {}
+        if equiv_ns.instance_of? Array
+            equiv_ns.each do |equiv_file|
+                puts "- Reading #{equiv_file}"
+                readEquivCSV(equivHash, ns, equiv_file)
+            end
+        else
+            equiv_file = equiv_ns
+            puts "- Reading #{equiv_file}"
+            readEquivCSV(equivHash, ns, equiv_file)
+        end
+    end
+    return equivHash
+end
+    
+# Parse equivalence file, treat as pipe-separated CSV
+def readEquivCSV(equivHash, ns, equiv_file)
+    csvTable = CSV.read("equivalence_files/" + equiv_file, {col_sep:"|", quote_char:"\0", headers:true})
+    map = false
+    csvTable.each do |row|
+        # Skip non-CSV header
+        if !map and row[0] == "[Values]"
+            map = true
+        elsif map
+            equivHash[ns][row[0]] = row[1]
         end
     end
 end

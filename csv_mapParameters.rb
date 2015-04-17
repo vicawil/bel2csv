@@ -49,6 +49,9 @@ module BELCSV
             else
                 term.namespace = obj.ns
                 term.value = obj.value
+                if statement.equivalence_hash
+                    term.bid = mapToBID(term.namespace, term.value, statement.equivalence_hash)
+                end
         end
         unless obj.ns.nil?
             term.content.objvalue = "protein"

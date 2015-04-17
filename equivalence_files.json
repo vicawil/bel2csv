@@ -1,0 +1,14 @@
+{
+"CHEBI": [
+         "chebi.beleq", 
+         "chebi-ids.beleq"
+         ],
+"EGID":  "entrez-gene-ids.beleq",
+"GOBP":    [
+         "go-biological-process.beleq", 
+         "go-biological-process-ids.beleq"
+         ],
+"HGNC":  "hgnc-human-genes.beleq",
+"MESHD": "mesh-diseases.beleq",
+"MGI":   "mgi-mouse-genes.beleq"
+}

@@ -29,6 +29,12 @@ def main
     fileArray = ARGV[1..-1]
     
     puts "Files to process: #{fileArray.length}"
+    
+    if args.include? 'n'
+        puts "Populating equivalence hash ..."
+        equivalence_hash = readEquivFiles()
+    end
+    
     fileArray.each do |infile|
         outfile = infile.rpartition(".")[0] + ".csv"
         
@@ -36,10 +42,12 @@ def main
         #
         
         # CSV header
-        head_array = ["PMID", "Sentence ID", "BEL ID", "Entity ID", "Parent ID", "type", "role", "object type", "object subtype", "object value", "namespace", "value", "BEL (full)", "BEL (relative)", "children IDs"]
+        head_array = ["PMID", "Sentence ID", "BEL ID", "Entity ID", "Parent ID", "type", "role", 
+                      "object type", "object subtype", "object value", "namespace", "value", "BEL (full)", "BEL (relative)", "children IDs", "BID"]
         
         # CSV output file parameters (tabbed CSV with header)
         csvOutOptions = { col_sep:        "\t",
+                          quote_char:     "\0",
                           headers:        head_array,
                           write_headers:  true}
         csvOutFile = CSV.open(outfile, "wb", options=csvOutOptions)
@@ -101,6 +109,10 @@ def main
                     statementObj.pmid = bel_meta.pmid
                 end
             end
+            
+            if args.include? 'n'
+                statementObj.equivalence_hash = equivalence_hash
+            end
             statementObj.terms = []
         
             # Process statement (main call)
@@ -124,7 +136,8 @@ def main
                                term.value,
                                term.BEL_full,
                                term.BEL_relative,
-                               term.childrenIds.length == 0? nil : term.childrenIds
+                               term.childrenIds.length == 0? nil : term.childrenIds,
+                               term.bid
                               ]
             end
     
