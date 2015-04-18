@@ -46,10 +46,15 @@ def main
                       "object type", "object subtype", "object value", "namespace", "value", "BEL (full)", "BEL (relative)", "children IDs", "BID"]
         
         # CSV output file parameters (tabbed CSV with header)
+        
         csvOutOptions = { col_sep:        "\t",
-                          quote_char:     "\0",
                           headers:        head_array,
-                          write_headers:  true}
+                          write_headers:  true }
+        
+        if args.include? 'd'
+            csvOutOptions[:quote_char] = "\0"
+        end
+        
         csvOutFile = CSV.open(outfile, "wb", options=csvOutOptions)
         
         puts "Processing #{infile} ..."
@@ -87,6 +92,7 @@ def main
         
         # Convert statements to CSV rows
         puts "Building CSV structure ..."
+        stlen = statements.length
         statements.each_with_index do |obj, idx|
             
             # Prepare abstract statement object
@@ -142,8 +148,10 @@ def main
             end
     
             # Simple progress indicator for large input data sets
-            if idx != 0 and idx % 1000 == 0
-                puts "Processed #{idx} statements ..."
+            if idx != 0 and (idx + 1) % 1000 == 0
+                puts "Processed #{idx + 1} statements ..."
+            elsif idx == stlen - 1
+                puts "Processed a total of #{stlen} statements."
             end
         end
         csvOutFile.close()

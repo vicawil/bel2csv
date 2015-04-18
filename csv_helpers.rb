@@ -2,6 +2,10 @@ require 'json'
 require 'csv'
 require_relative 'csv_func_rel_mapping'
 
+# Global variable for namespaces without corresponding mapping hashes in equivalence_hash
+$ignore_ns = []
+$ignore_entity = {}
+
 # Reset document, annotation, relationship ids
 def counterReset()
 	$documentId = 1000
@@ -44,11 +48,16 @@ Command-line arguments:
 b: Treat input file as BEL document, use sequentially incremented
    number as BEL ID.
 t: Treat input file as tabulated (CSV), use BEL ID from CSV.
-a: Only in combination with t: Do not include sentence Id and PMID 
+a: Only in combination with t: Do not include sentence ID and PMID 
    as passage infons.
 n: Map entity symbol or ID (field `value`) to unique internal 
-   BEL identifier (field `BID`). Note: Equivalence files must be placed 
-   in /equivalence_files and registered in `equivalence_files.json`.
+   BEL identifier (field `BID`). Note: Equivalence files must be 
+   placed in /equivalence_files and registered in 
+   `equivalence_files.json`.
+d: Set the CSV field delimiter to `\\0` (default is `"`). Prevents 
+   double quoting of fields containing double quotes and doesn't 
+   insert escaping double quotes for the contained double quotes. 
+   Note: This is not compliant with the RFC 4180 CSV specification.
 --------------------------------------------------------------------
 	EOS
 	puts string
@@ -110,14 +119,24 @@ end
 # Map namespace and entity value to unique internal BEL identifier (BID)
 def mapToBID(ns, value, equivalence_hash)
     ns = String(ns)
-    if equivalence_hash.include? ns
-        if equivalence_hash[ns].include? value
-            return equivalence_hash[ns][value]
-        else
-            puts "Error mapping #{value}: No matching equivalence entry in hash #{ns}"
+    unless $ignore_ns.include? ns or ($ignore_entity[ns] and $ignore_entity[ns].include? value)
+        if equivalence_hash.include? ns
+            if equivalence_hash[ns].include? value
+                return equivalence_hash[ns][value]
+            else
+                puts "Error mapping #{value}: No matching equivalence entry in hash #{ns}."
+                # Suppress repeat errors
+                if $ignore_entity[ns]
+                    $ignore_entity[ns] << value
+                else
+                    $ignore_entity[ns] = [value]
+                end
+            end
+        else 
+            puts "Warning: No equivalence hash for namespace #{ns}. Corresponding values are not mapped."
+            # Suppress repeat warnings
+            $ignore_ns << ns
         end
-    else 
-        puts "Error mapping #{value}: No equivalence hash for namespace #{ns}"
     end
 end
 
