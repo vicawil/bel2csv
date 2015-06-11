@@ -36,7 +36,7 @@ def main
     end
     
     fileArray.each do |infile|
-        outfile = infile.rpartition(".")[0] + ".csv"
+        outfile = infile + ".csv"
         
         # CSV parameters
         #
