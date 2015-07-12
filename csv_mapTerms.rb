@@ -13,7 +13,7 @@ module BELCSV
         
         # Handle n-ary (n > 2) terms and unary terms containing terms or statements
         #
-        unless obj.arguments.length == 1 and obj.arguments[0].instance_of?(BEL::Language::Parameter)
+        unless statement.keeptogether and obj.arguments.length == 1 and obj.arguments[0].instance_of?(BEL::Language::Parameter)
             term.content = csvCreateRelation(statement)
             term.type = "relation"
             walkTaxonomy(term.content, obj, :function)
@@ -37,7 +37,11 @@ module BELCSV
                         argFunction = arg.fx.short_form
                         
                         # Treat argument terms of length 1 and having a parameter as annotation, unless modification
-                        unless arg.arguments.length == 1 and arg.arguments[0].instance_of?(BEL::Language::Parameter) and !$modifications.include? argFunction
+                        unless statement.keeptogether and 
+                               arg.arguments.length == 1 and 
+                               arg.arguments[0].instance_of?(BEL::Language::Parameter) and 
+                               !$modifications.include? argFunction
+                               
                             argobj.refid = "r" + String(prevrelId)
                             if objFunction == :p
                                 case argFunction
@@ -139,7 +143,7 @@ module BELCSV
                 statement.parentChildren = nil
             end
         
-        # Handle unary terms containing parameters
+        # Handle unary terms containing parameters when keeptogether = true
         # (no argument substitution, no recursive walking, treat as relations when term is a modification function)
         else
             unless $modifications.include? objFunction

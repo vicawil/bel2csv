@@ -65,8 +65,8 @@ module BELCSV
             if sublevel == 0
                     # Term handling
                     if obj.instance_of?(BEL::Language::Term)
-                        # Nested terms are relations unless they are unary (not yet encountered)
-                        unless obj.arguments.length == 1 and obj.arguments[0].instance_of?(BEL::Language::Parameter)
+                        # Nested terms are relations unless they are unary
+                        unless statement.keeptogether and obj.arguments.length == 1 and obj.arguments[0].instance_of?(BEL::Language::Parameter)
                             refid = "r" + String($relationId)
                         else
                             refid = "a" + String($annotationId)

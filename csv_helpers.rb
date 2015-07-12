@@ -58,6 +58,8 @@ d: Set the CSV field delimiter to `\\0` (default is `"`). Prevents
    double quoting of fields containing double quotes and doesn't 
    insert escaping double quotes for the contained double quotes. 
    Note: This is not compliant with the RFC 4180 CSV specification.
+k: Don't split pre-terminal abundance functions and entities into relation
+   and annotation, represent as single annotation instead.
 --------------------------------------------------------------------
 	EOS
 	puts string

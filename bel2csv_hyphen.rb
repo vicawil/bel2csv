@@ -119,11 +119,6 @@ def main
             if args.include? 'n'
                 statementObj.equivalence_hash = equivalence_hash
             end
-            
-            if args.include? 'k'
-                statementObj.keeptogether = true
-            end
-            
             statementObj.terms = []
         
             # Process statement (main call)
@@ -131,24 +126,24 @@ def main
             
             # Write statement terms, relationships and nested statements to CSV, row by row
             statementObj.terms.each do |term|
-            term.childrenIds = String(term.childrenIds).tr('["]', "")
-               
-                csvOutFile << [statementObj.pmid,
-                               statementObj.sentence_id,
-                               statementObj.statement_id,
+                term.childrenIds = String(term.childrenIds).tr('["]', "")
+                
+                csvOutFile << [String(statementObj.pmid) == ""? "-" : statementObj.pmid,
+                               String(statementObj.sentence_id) == ""? "-" : statementObj.sentence_id,
+                               String(statementObj.statement_id) == ""? "-" : statementObj.statement_id,
                                term.content.id,
-                               term.parentId,
+                               String(term.parentId) == ""? "-" : term.parentId,
                                term.type,
-                               term.role,
+                               String(term.role) == ""? "-" : term.role,
                                term.content.objtype,
                                term.content.objsubtype,
                                term.content.objvalue, 
-                               term.namespace,
-                               term.value,
-                               term.BEL_full,
-                               term.BEL_relative,
-                               term.childrenIds.length == 0? nil : term.childrenIds,
-                               term.bid
+                               String(term.namespace) == ""? "-" : term.namespace,
+                               String(term.value) == ""? "-" : term.value,
+                               String(term.BEL_full) == ""? "-" : term.BEL_full,
+                               String(term.BEL_relative) == ""? "-" : term.BEL_relative,
+                               term.childrenIds.length == 0? "-" : term.childrenIds,
+                               String(term.bid) == ""? "-" : term.bid
                               ]
             end
     
