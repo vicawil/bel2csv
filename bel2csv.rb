@@ -65,7 +65,11 @@ def main
         elsif args.include? 't'
             # Treating input as tabulated/tabbed CSV
             puts "Generating BEL from tabulated file ..."
-            csvObj = csvReader(infile)
+						headers = true
+						if args.include? 'h' 
+								headers = false
+						end
+						csvObj = csvReader(infile, headers)
             belfile = belBuilder(csvObj)
         end
         
